@@ -42,7 +42,11 @@ namespace Meetup.Api
         {
             var meetup = await Get(id);
             command(meetup);
+            //Dispatch Events Before?
+
             await _repo.Save(meetup);
+
+            //Dispatch Events After?
         }
     }
 }

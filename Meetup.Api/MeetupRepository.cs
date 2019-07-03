@@ -17,7 +17,7 @@ namespace Meetup.Api
         {
             var connectionString = config["mongo"] ?? "mongodb://localhost:27017";
             var client = new MongoClient(connectionString);
-            _collection = client.GetDatabase("voxel").GetCollection<MeetupMongoDocument>("meetup");
+            _collection = client.GetDatabase("netcorebcn").GetCollection<MeetupMongoDocument>("meetup");
         }
 
         public async Task<MeetupAggregate> Get(Guid meetupId)
@@ -32,8 +32,8 @@ namespace Meetup.Api
             return new MeetupAggregate(
                 MeetupId.From(doc.Id),
                 new MeetupTitle(doc.Title),
-                ValidatedLocation.From(doc.Location),
-                NumberOfSeats.From(doc.NumberOfSeats),
+                ValidatedLocation.Parse(doc.Location),
+                NumberOfSeats.Parse(doc.NumberOfSeats),
                 doc.State.ToLower() switch
                 {
                     "published" => MeetupState.Published,

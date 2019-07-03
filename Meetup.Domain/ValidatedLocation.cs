@@ -20,7 +20,7 @@ namespace Meetup.Domain
         private ValidatedLocation(string location) => Value = location;
 
         public string Value { get; private set; }
-        public static ValidatedLocation None => From(string.Empty);
+        public static ValidatedLocation None => Parse(string.Empty);
 
         public static implicit operator string(ValidatedLocation id) => id.Value;
         protected override IEnumerable<object> GetAtomicValues()
@@ -28,6 +28,6 @@ namespace Meetup.Domain
             yield return Value;
         }
 
-        public static ValidatedLocation From(string location) => new ValidatedLocation(location);
+        public static ValidatedLocation Parse(string location) => new ValidatedLocation(location);
     }
 }

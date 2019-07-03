@@ -35,12 +35,10 @@ namespace Meetup.Domain
             State = state;
             _going = going;
             _notGoing = notGoing;
-            EnforceInvariants();
         }
 
         public MeetupAggregate(MeetupId id, MeetupTitle title, ValidatedLocation location) =>
             Apply(new Events.MeetupCreated { MeetupId = id, Title = title, Location = location });
-
 
         public void UpdateNumberOfSeats(NumberOfSeats numberOfSeats) =>
             Apply(new Events.NumberOfSeatsUpdated { MeetupId = Id, NumberOfSeats = numberOfSeats });
@@ -57,28 +55,27 @@ namespace Meetup.Domain
         public void DeclineRSVP(MemberId memberId, DateTime declinedAt) =>
             Apply(new Events.RSVPDeclined { MeetupId = Id, MemberId = memberId, DeclinedAt = declinedAt });
 
-        private void EnforceInvariants()
+        private void EnforceInvariants(object @event)
         {
-            if (State == MeetupState.Published && NumberOfSeats == NumberOfSeats.None)
+            var valid = @event switch
             {
-                throw new ArgumentException("Cant publish a meetup without number of seats");
-            }
+                Events.MeetupPublished _ => State == MeetupState.Published && NumberOfSeats != NumberOfSeats.None,
+                Events.RSVPDeclined _ => State == MeetupState.Published,
+                Events.RSVPAccepted _ => State == MeetupState.Published,
+                _ => true
+            };
 
-            if (State != MeetupState.Published)
+            if (!valid)
             {
-                throw new ArgumentException("For declining RSVPs meetup must be published");
-            }
-
-            if (State != MeetupState.Published)
-            {
-                throw new ArgumentException("For accepting RSVPs meetup must be published");
+                throw new ArgumentException("MeetupAggregate invalid state");
             }
         }
 
         private void Apply(object @event)
         {
-            _events.Add(@event);
             When(@event);
+            EnforceInvariants(@event);
+            _events.Add(@event);
         }
 
         private void When(object @event)
@@ -88,7 +85,7 @@ namespace Meetup.Domain
                 case Events.MeetupCreated created:
                     Id = MeetupId.From(created.MeetupId);
                     Title = new MeetupTitle(created.Title);
-                    Location = ValidatedLocation.From(created.Location);
+                    Location = ValidatedLocation.Parse(created.Location);
                     State = MeetupState.Created;
                     break;
                 case Events.NumberOfSeatsUpdated seatsUpdated:

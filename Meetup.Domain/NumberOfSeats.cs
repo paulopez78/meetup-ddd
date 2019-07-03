@@ -15,6 +15,11 @@ namespace Meetup.Domain
             return new NumberOfSeats(numberOfSeats);
         }
 
+        public static NumberOfSeats Parse(int numberOfSeats) =>
+            numberOfSeats == None
+                ? None
+                : new NumberOfSeats(numberOfSeats);
+
         private NumberOfSeats(int numberOfSeats)
         {
             Value = numberOfSeats;

@@ -21,11 +21,11 @@ namespace Meetup.Api
             var meetup = await _appService.Get(id);
             return Ok(new
             {
-                Id = meetup.Id,
-                Title = meetup.Title,
-                Location = meetup.Location,
-                NumberOfSeats = meetup.NumberOfSeats,
-                State = meetup.State
+                Id = meetup.Id.Value,
+                Title = meetup.Title.Value,
+                Location = meetup.Location.Value,
+                NumberOfSeats = meetup.NumberOfSeats.Value,
+                State = meetup.State.ToString()
             });
         }
 
