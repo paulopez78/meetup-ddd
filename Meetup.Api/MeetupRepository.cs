@@ -42,8 +42,8 @@ namespace Meetup.Api
                     "created" => MeetupState.Created,
                     _ => MeetupState.Created
                 },
-                doc.Going.ToDictionary(x => new MemberId(x.Key), v => v.Value),
-                doc.NotGoing.ToDictionary(x => new MemberId(x.Key), v => v.Value));
+                doc.Going.ToDictionary(x => new MemberId(Guid.Parse(x.Key)), v => v.Value),
+                doc.NotGoing.ToDictionary(x => new MemberId(Guid.Parse(x.Key)), v => v.Value));
         }
 
         public async Task Save(MeetupAggregate meetup)
@@ -55,8 +55,8 @@ namespace Meetup.Api
                 Location = meetup.Location,
                 NumberOfSeats = meetup.NumberOfSeats,
                 State = meetup.State.ToString(),
-                Going = meetup.Going.ToDictionary(x => x.Key.Value, y => y.Value),
-                NotGoing = meetup.NotGoing.ToDictionary(x => x.Key.Value, y => y.Value)
+                Going = meetup.Going.ToDictionary(x => x.Key.Value.ToString(), y => y.Value),
+                NotGoing = meetup.NotGoing.ToDictionary(x => x.Key.Value.ToString(), y => y.Value)
             }, new UpdateOptions
             {
                 IsUpsert = true
@@ -72,7 +72,7 @@ namespace Meetup.Api
         public string Location { get; set; }
         public int NumberOfSeats { get; set; }
         public string State { get; set; }
-        public Dictionary<Guid, DateTime> Going { get; set; }
-        public Dictionary<Guid, DateTime> NotGoing { get; set; }
+        public Dictionary<string, DateTime> Going { get; set; }
+        public Dictionary<string, DateTime> NotGoing { get; set; }
     }
 }

@@ -47,7 +47,7 @@ namespace Meetup.Domain
 
         public void Cancel() => Apply(new Events.MeetupCanceled { MeetupId = Id });
 
-        public void Closed() => Apply(new Events.MeetupClosed { MeetupId = Id });
+        public void Close() => Apply(new Events.MeetupClosed { MeetupId = Id });
 
         public void AcceptRSVP(MemberId memberId, DateTime acceptedAt) =>
             Apply(new Events.RSVPAccepted { MeetupId = Id, MemberId = memberId, AcceptedAt = acceptedAt });

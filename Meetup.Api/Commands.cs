@@ -23,6 +23,30 @@ namespace Meetup.Api
             {
                 public Guid MeetupId { get; set; }
             }
+
+            public class Cancel
+            {
+                public Guid MeetupId { get; set; }
+            }
+
+            public class Close
+            {
+                public Guid MeetupId { get; set; }
+            }
+
+            public class AcceptRSVP
+            {
+                public Guid MeetupId { get; set; }
+                public Guid MemberId { get; set; }
+                public DateTime AcceptedAt { get; set; }
+            }
+
+            public class DeclineRSVP
+            {
+                public Guid MeetupId { get; set; }
+                public Guid MemberId { get; set; }
+                public DateTime DeclinedAt { get; set; }
+            }
         }
     }
 }

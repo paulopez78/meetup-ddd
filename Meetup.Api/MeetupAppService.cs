@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Meetup.Domain;
 
@@ -7,18 +8,20 @@ namespace Meetup.Api
     public class MeetupAppService
     {
         private readonly MeetupRepository _repo;
+        private readonly AttendantsRepository _attendantsRepo;
         private readonly LocationValidator _validateLocation;
 
-        public MeetupAppService(MeetupRepository repo, LocationValidator validateLocation)
+        public MeetupAppService(MeetupRepository repo, AttendantsRepository attendantsRepo, LocationValidator validateLocation)
         {
             _repo = repo;
+            _attendantsRepo = attendantsRepo;
             _validateLocation = validateLocation;
         }
 
         public Task Handle(object command) => command switch
         {
             Meetup.V1.Create create =>
-                _repo.Save(new MeetupAggregate(
+                ExecuteTransaction(new MeetupAggregate(
                     new MeetupId(create.MeetupId),
                     new MeetupTitle(create.Title),
                     new ValidatedLocation(_validateLocation, create.Location))),
@@ -33,6 +36,26 @@ namespace Meetup.Api
                      publish.MeetupId,
                      meetup => meetup.Publish()),
 
+            Meetup.V1.Close close =>
+                 ExecuteCommand(
+                     close.MeetupId,
+                     meetup => meetup.Close()),
+
+            Meetup.V1.Cancel cancel =>
+                 ExecuteCommand(
+                     cancel.MeetupId,
+                     meetup => meetup.Close()),
+
+            Meetup.V1.AcceptRSVP accept =>
+                 ExecuteCommand(
+                     accept.MeetupId,
+                     meetup => meetup.AcceptRSVP(new MemberId(accept.MemberId), accept.AcceptedAt)),
+
+            Meetup.V1.DeclineRSVP decline =>
+                 ExecuteCommand(
+                     decline.MeetupId,
+                     meetup => meetup.AcceptRSVP(new MemberId(decline.MemberId), decline.DeclinedAt)),
+
             _ => throw new ArgumentException($"Invalid request {nameof(command)}")
         };
 
@@ -42,11 +65,27 @@ namespace Meetup.Api
         {
             var meetup = await Get(id);
             command(meetup);
-            //Dispatch Events Before?
+            await ExecuteTransaction(meetup);
+        }
+
+        private async Task ExecuteTransaction(MeetupAggregate meetup)
+        {
+            // Inline Projection (Read your writes)
+            var newState = await Project(meetup);
 
             await _repo.Save(meetup);
+            await _attendantsRepo.Save(newState);
 
-            //Dispatch Events After?
+            // Dispatch Events After?
+            // await _bus.Publish(@events);
+        }
+
+        private async Task<AttendantsReadModel> Project(MeetupAggregate meetup)
+        {
+            var state = await _attendantsRepo.Get(meetup.Id);
+            if (state == null) state = new AttendantsReadModel();
+            var newState = new AttendantsProjection().Project(state, meetup.Events.ToArray());
+            return newState;
         }
     }
 }

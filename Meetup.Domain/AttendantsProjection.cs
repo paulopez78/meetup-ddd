@@ -17,11 +17,14 @@ namespace Meetup.Domain
         {
             switch (@event)
             {
+                case Events.MeetupCreated created:
+                    state.MeetupId = created.MeetupId;
+                    break;
                 case Events.NumberOfSeatsUpdated seats:
-                    state.Capacity = seats.NumberOfSeats;
+                    state.MeetupCapacity = seats.NumberOfSeats;
                     break;
                 case Events.RSVPAccepted accepted:
-                    if (state.Capacity > state.Going.Count)
+                    if (state.MeetupCapacity > state.Going.Count)
                     {
                         state.Going.Add(accepted.MemberId);
                     }
@@ -39,7 +42,7 @@ namespace Meetup.Domain
 
             void UpdateWaitingList()
             {
-                if (state.Capacity > state.Going.Count)
+                if (state.MeetupCapacity > state.Going.Count)
                 {
                     var first = state.Waiting.First();
                     state.Going.Add(first);
@@ -53,9 +56,10 @@ namespace Meetup.Domain
 
     public class AttendantsReadModel
     {
-        public int Capacity { get; set; }
-        public List<Guid> Waiting { get; internal set; } = new List<Guid>();
-        public List<Guid> Going { get; internal set; } = new List<Guid>();
-        public List<Guid> NotGoing { get; internal set; } = new List<Guid>();
+        public Guid MeetupId { get; set; }
+        public int MeetupCapacity { get; set; }
+        public List<Guid> Waiting { get; set; } = new List<Guid>();
+        public List<Guid> Going { get; set; } = new List<Guid>();
+        public List<Guid> NotGoing { get; set; } = new List<Guid>();
     }
 }

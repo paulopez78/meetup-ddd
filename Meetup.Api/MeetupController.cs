@@ -42,5 +42,41 @@ namespace Meetup.Api
             await _appService.Handle(request);
             return Ok();
         }
+
+        [HttpPut("publish")]
+        public async Task<ActionResult> Put(Meetup.V1.Publish request)
+        {
+            await _appService.Handle(request);
+            return Ok();
+        }
+
+        [HttpPut("acceptrsvp")]
+        public async Task<ActionResult> Put(Meetup.V1.AcceptRSVP request)
+        {
+            await _appService.Handle(request);
+            return Ok();
+        }
+
+        [HttpPut("declinersvp")]
+        public async Task<ActionResult> Put(Meetup.V1.DeclineRSVP request)
+        {
+            await _appService.Handle(request);
+            return Ok();
+        }
+
+
+        [HttpPut("close")]
+        public async Task<ActionResult> Put(Meetup.V1.Close request)
+        {
+            await _appService.Handle(request);
+            return Ok();
+        }
+
+        [HttpPut("cancel")]
+        public async Task<ActionResult> Put(Meetup.V1.Cancel request)
+        {
+            await _appService.Handle(request);
+            return Ok();
+        }
     }
 }
