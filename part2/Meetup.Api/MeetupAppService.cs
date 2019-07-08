@@ -1,20 +1,17 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using EasyNetQ;
 using Meetup.Domain;
 
 namespace Meetup.Api
 {
     public class MeetupAppService
     {
-        private readonly MeetupRepository _repo;
-        private readonly AttendantsRepository _attendantsRepo;
         private readonly LocationValidator _validateLocation;
 
-        public MeetupAppService(MeetupRepository repo, AttendantsRepository attendantsRepo, LocationValidator validateLocation)
+        public MeetupAppService(LocationValidator validateLocation)
         {
-            _repo = repo;
-            _attendantsRepo = attendantsRepo;
             _validateLocation = validateLocation;
         }
 
@@ -59,7 +56,7 @@ namespace Meetup.Api
             _ => throw new ArgumentException($"Invalid request {nameof(command)}")
         };
 
-        public async Task<MeetupAggregate> Get(Guid id) => await _repo.Get(id);
+        public Task<MeetupAggregate> Get(Guid id) => throw new NotImplementedException();
 
         private async Task ExecuteCommand(Guid id, Action<MeetupAggregate> command)
         {
@@ -68,24 +65,9 @@ namespace Meetup.Api
             await ExecuteTransaction(meetup);
         }
 
-        private async Task ExecuteTransaction(MeetupAggregate meetup)
+        private Task ExecuteTransaction(MeetupAggregate meetup)
         {
-            // Inline Projection (Read your writes)
-            var newState = await Project(meetup);
-
-            await _repo.Save(meetup);
-            await _attendantsRepo.Save(newState);
-
-            // Dispatch Events After?
-            // await _bus.Publish(@events);
-        }
-
-        private async Task<AttendantsReadModel> Project(MeetupAggregate meetup)
-        {
-            var state = await _attendantsRepo.Get(meetup.Id);
-            if (state == null) state = new AttendantsReadModel();
-            var newState = new AttendantsProjection().Project(state, meetup.Events.ToArray());
-            return newState;
+            return Task.CompletedTask;
         }
     }
 }

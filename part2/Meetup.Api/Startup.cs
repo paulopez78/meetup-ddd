@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Meetup.Domain;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -24,8 +20,6 @@ namespace Meetup.Api
             services.AddControllers();
             services.AddSingleton<LocationValidator>(location => true);
             services.AddScoped<MeetupAppService>();
-            services.AddScoped<MeetupRepository>();
-            services.AddScoped<AttendantsRepository>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
