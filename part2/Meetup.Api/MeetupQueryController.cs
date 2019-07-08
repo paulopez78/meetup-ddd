@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Marten;
+using Meetup.Domain;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Meetup.Api
@@ -8,16 +10,18 @@ namespace Meetup.Api
     [ApiController]
     public class MeetupQueryController : ControllerBase
     {
+        private readonly IDocumentStore _store;
 
-        public MeetupQueryController()
+        public MeetupQueryController(IDocumentStore store)
         {
+            _store = store;
         }
 
         [HttpGet("attendants/{id}")]
         public async Task<ActionResult> Get(Guid id)
         {
-            await Task.Delay(0);
-            return Ok(null);
+            var attendants = await _store.Query<AttendantsReadModel>(id);
+            return Ok(attendants);
         }
     }
 }

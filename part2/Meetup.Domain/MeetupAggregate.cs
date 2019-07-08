@@ -19,6 +19,18 @@ namespace Meetup.Domain
         private List<object> _events { get; } = new List<object>();
         public IEnumerable<object> Events => _events;
 
+        public static MeetupAggregate From(Guid id, IEnumerable<object> events)
+        {
+            var aggregate = new MeetupAggregate();
+            foreach (var ev in events)
+            {
+                aggregate.When(ev);
+            }
+            return aggregate;
+        }
+
+        private MeetupAggregate() { }
+
         public MeetupAggregate(
             MeetupId id,
             MeetupTitle title,

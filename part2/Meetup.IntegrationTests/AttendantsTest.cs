@@ -11,10 +11,7 @@ namespace Meetup.IntegrationTests
     {
         private readonly MeetupClient _client;
 
-        public AttendantsTest(MeetupClientFixture fixture)
-        {
-            _client = fixture.MeetupClient;
-        }
+        public AttendantsTest(MeetupClientFixture fixture) => _client = fixture.MeetupClient;
 
         [Fact]
         public async Task Attendants_Test()

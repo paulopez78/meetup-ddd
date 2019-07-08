@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using EasyNetQ;
+using Marten;
 using Meetup.Domain;
 
 namespace Meetup.Api
@@ -9,10 +10,12 @@ namespace Meetup.Api
     public class MeetupAppService
     {
         private readonly LocationValidator _validateLocation;
+        private readonly IDocumentStore _eventStore;
 
-        public MeetupAppService(LocationValidator validateLocation)
+        public MeetupAppService(IDocumentStore eventStore, LocationValidator validateLocation)
         {
             _validateLocation = validateLocation;
+            _eventStore = eventStore;
         }
 
         public Task Handle(object command) => command switch
@@ -56,7 +59,12 @@ namespace Meetup.Api
             _ => throw new ArgumentException($"Invalid request {nameof(command)}")
         };
 
-        public Task<MeetupAggregate> Get(Guid id) => throw new NotImplementedException();
+        public async Task<MeetupAggregate> Get(Guid id)
+        {
+            using var session = _eventStore.OpenSession();
+            var events = (await session.Events.FetchStreamAsync(id)).Select(x => x.Data);
+            return MeetupAggregate.From(id, events);
+        }
 
         private async Task ExecuteCommand(Guid id, Action<MeetupAggregate> command)
         {
@@ -65,9 +73,16 @@ namespace Meetup.Api
             await ExecuteTransaction(meetup);
         }
 
-        private Task ExecuteTransaction(MeetupAggregate meetup)
+        private async Task ExecuteTransaction(MeetupAggregate meetup)
         {
-            return Task.CompletedTask;
+            using var session = _eventStore.OpenSession();
+            session.Events.Append(meetup.Id, meetup.Events.ToArray());
+
+            var readModel = (await session.LoadAsync<AttendantsReadModel>(meetup.Id)) ?? new AttendantsReadModel();
+            var newReadModel = new AttendantsProjection().Project(readModel, meetup.Events.ToArray());
+            session.Store(newReadModel);
+
+            await session.SaveChangesAsync();
         }
     }
 }
