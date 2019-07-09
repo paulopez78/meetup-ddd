@@ -23,6 +23,9 @@ namespace Meetup.Api
             services.AddControllers();
             services.AddSingleton<LocationValidator>(location => true);
             services.AddScoped<MeetupAppService>();
+            services
+                .AddAsyncMessaging(Configuration)
+                .WithTypesFromAssemblies(typeof(MeetupPublishedEventHandler).Assembly);
 
             AddEventStore();
 

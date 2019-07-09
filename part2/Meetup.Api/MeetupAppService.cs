@@ -77,11 +77,30 @@ namespace Meetup.Api
             using var session = _eventStore.OpenSession();
             session.Events.Append(meetup.Id, meetup.Events.ToArray());
 
+            await PersistProjection(meetup, session);
+            SaveEventToOutbox(meetup, session);
+
+            await session.SaveChangesAsync();
+        }
+
+        private static void SaveEventToOutbox(MeetupAggregate meetup, IDocumentSession session)
+        {
+            session.Store<OutboxEvent>(meetup.Events.Select(ev => new OutboxEvent
+            {
+                Id = Guid.NewGuid(),
+                StreamId = meetup.Id,
+                Data = ev,
+                EventType = ev.GetType().Name,
+                ClrEventType = ev.GetType().FullName
+
+            }).ToArray());
+        }
+
+        private static async Task PersistProjection(MeetupAggregate meetup, IDocumentSession session)
+        {
             var readModel = (await session.LoadAsync<AttendantsReadModel>(meetup.Id)) ?? new AttendantsReadModel();
             var newReadModel = new AttendantsProjection().Project(readModel, meetup.Events.ToArray());
             session.Store(newReadModel);
-
-            await session.SaveChangesAsync();
         }
     }
 }
