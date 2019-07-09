@@ -35,6 +35,11 @@ namespace Meetup.IntegrationTests
             attendants.Going.AssertEqual(jon, carla);
             attendants.Waiting.AssertEqual(susan);
             Assert.Empty(attendants.NotGoing);
+
+            var attendantsV2 = await _client.GetAttendantsV2(meetupId);
+            attendantsV2.Going.AssertEqual(jon, carla);
+            attendantsV2.Waiting.AssertEqual(susan);
+            Assert.Empty(attendantsV2.NotGoing);
         }
     }
 

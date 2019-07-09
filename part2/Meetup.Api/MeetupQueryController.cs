@@ -23,5 +23,12 @@ namespace Meetup.Api
             var attendants = await _store.Query<AttendantsReadModel>(id);
             return Ok(attendants);
         }
+
+        [HttpGet("v2/attendants/{id}")]
+        public async Task<ActionResult> GetV2(Guid id)
+        {
+            var attendants = await _store.Query<AttendantsReadModel, AttendantsProjection>(id);
+            return Ok(attendants);
+        }
     }
 }

@@ -4,7 +4,12 @@ using System.Linq;
 
 namespace Meetup.Domain
 {
-    public class AttendantsProjection
+    public interface IProjection<TReadModel>
+    {
+        TReadModel Project(object[] events);
+    }
+
+    public class AttendantsProjection : IProjection<AttendantsReadModel>
     {
         public AttendantsProjection()
         {

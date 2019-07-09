@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using EasyNetQ;
 using Marten;
 using Meetup.Domain;
 

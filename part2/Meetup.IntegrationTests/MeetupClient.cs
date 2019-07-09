@@ -84,6 +84,16 @@ namespace Meetup.IntegrationTests
             var content = await response.Content.ReadAsStringAsync();
             return await response.Content.ReadAsAsync<Attendants>();
         }
+
+        public async Task<Attendants> GetAttendantsV2(Guid id)
+        {
+            var response = await _client.GetAsync($"v2/attendants/{id}");
+            var log = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Get RESPONSE: {log}");
+
+            var content = await response.Content.ReadAsStringAsync();
+            return await response.Content.ReadAsAsync<Attendants>();
+        }
     }
 
     public class Meetup
