@@ -13,7 +13,7 @@ namespace Meetup.Domain
             }
             Value = title;
         }
-        private MeetupTitle() { }
+        private MeetupTitle() { Value = ""; }
 
         public string Value { get; private set; }
 

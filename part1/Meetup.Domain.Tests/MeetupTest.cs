@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using static Meetup.Domain.Tests.MeetupTestExtensions;
 using System.Linq;
 
-#nullable enable
+// #nullable enable
 namespace Meetup.Domain.Tests
 {
     public class MeetupTests

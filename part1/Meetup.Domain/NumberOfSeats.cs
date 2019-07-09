@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-#nullable enable
+// #nullable enable
 namespace Meetup.Domain
 {
     public class NumberOfSeats : ValueObject

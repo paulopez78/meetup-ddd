@@ -7,8 +7,8 @@ namespace Meetup.Domain
         public class MeetupCreated
         {
             public Guid MeetupId { get; set; }
-            public string Title { get; set; }
-            public string Location { get; set; }
+            public string Title { get; set; } = "";
+            public string Location { get; set; } = "";
         }
 
         public class NumberOfSeatsUpdated
