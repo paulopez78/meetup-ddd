@@ -1,0 +1,13 @@
+<Project>
+    <ItemGroup>
+        <TestProjects Include="**\*.csproj" />
+        <Watch Include="**\*.cs" />
+    </ItemGroup>
+
+    <Target Name="Test">
+        <Exec Command="sleep 2" />
+        <MSBuild Targets="VSTest" Projects="@(TestProjects)" />
+    </Target>
+
+    <Import Project="$(MSBuildExtensionsPath)\Microsoft.Common.targets" />
+</Project>
